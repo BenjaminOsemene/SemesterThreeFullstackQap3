@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players by Team</title>
+</head>
+<body>
+    <h1>Players from <%= team %></h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% players.forEach(player => { %>
+                <tr>
+                    <td><%= player.first_name %> <%= player.last_name %></td>
+                    <td><%= player.position %></td>
+                    <td>
+                        <a href="/edit-player/<%= player.id %>">Edit</a>
+                        <a href="/delete-player/<%= player.id %>" onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    <a href="/players">Back to All Players</a>
+</body>
+</html>
