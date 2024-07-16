@@ -1,0 +1,23 @@
+<h1>Edit Player</h1>
+
+<h2>Full Update</h2>
+<form action="/players/<%= player.id %>?_method=PUT" method="POST">
+    <input type="text" name="first_name" value="<%= player.first_name %>" required>
+    <input type="text" name="last_name" value="<%= player.last_name %>" required>
+    <input type="text" name="team" value="<%= player.team %>" required>
+    <input type="text" name="position" value="<%= player.position %>" required>
+    <input type="number" name="height" value="<%= player.height %>" required>
+    <input type="number" name="age" value="<%= player.age %>" required>
+    <input type="number" name="jersey_number" value="<%= player.jersey_number %>" required>
+    <button type="submit">Update Player</button>
+</form>
+
+<h2>Partial Update</h2>
+<form action="/players/<%= player.id %>?_method=PATCH" method="POST">
+    <input type="text" name="team" placeholder="New Team">
+    <input type="text" name="position" placeholder="New Position">
+    <input type="number" name="jersey_number" placeholder="New Jersey Number">
+    <button type="submit">Partial Update</button>
+</form>
+
+<a href="/">Back to Player List</a>
