@@ -1,0 +1,27 @@
+<h1>Basketball Players</h1>
+
+<h2>Add New Player</h2>
+<form action="/players" method="POST">
+    <input type="text" name="first_name" placeholder="First Name" required>
+    <input type="text" name="last_name" placeholder="Last Name" required>
+    <input type="text" name="team" placeholder="Team" required>
+    <input type="text" name="position" placeholder="Position" required>
+    <input type="number" name="height" placeholder="Height (cm)" required>
+    <input type="number" name="age" placeholder="Age" required>
+    <input type="number" name="jersey_number" placeholder="Jersey Number" required>
+    <button type="submit">Add Player</button>
+</form>
+
+<h2>Player List</h2>
+<ul>
+    <% players.forEach(function(player) { %>
+        <li>
+            <%= player.first_name %> <%= player.last_name %> 
+            (Team: <%= player.team %>, Position: <%= player.position %>)
+            <a href="/players/<%= player.id %>/edit">Edit</a>
+            <form action="/players/<%= player.id %>?_method=DELETE" method="POST" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+    <% }); %>
+</ul>
