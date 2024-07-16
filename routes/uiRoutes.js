@@ -7,15 +7,16 @@ const {
   getPlayersByPosition,
   createPlayer,
   updatePlayer,
-  deletePlayer
+  deletePlayer,
+  partialUpdatePlayer
 } = require('../dal/dal');
 
-// Home page
+// Home page (GET)
 router.get('/', (req, res) => {
   res.render('index');
 });
 
-// Player list page
+// Player list page (GET)
 router.get('/players', async (req, res) => {
   try {
     const players = await getAllPlayers();
@@ -25,12 +26,12 @@ router.get('/players', async (req, res) => {
   }
 });
 
-// Add player page
+// Add player page (GET)
 router.get('/add-player', (req, res) => {
   res.render('addPlayer');
 });
 
-// Add player form submission
+// Add player form submission (POST)
 router.post('/add-player', async (req, res) => {
   try {
     const newPlayer = await createPlayer(req.body);
@@ -40,7 +41,7 @@ router.post('/add-player', async (req, res) => {
   }
 });
 
-// Edit player page
+// Edit player page (GET)
 router.get('/edit-player/:id', async (req, res) => {
   try {
     const player = await getPlayerById(req.params.id);
@@ -54,35 +55,49 @@ router.get('/edit-player/:id', async (req, res) => {
   }
 });
 
-// Edit player form submission
-router.post('/edit-player/:id', async (req, res) => {
+// Update player (PUT)
+router.put('/edit-player/:id', async (req, res) => {
   try {
     const updatedPlayer = await updatePlayer(req.params.id, req.body);
     if (updatedPlayer) {
-      res.redirect('/players');
+      res.json(updatedPlayer);
     } else {
-      res.status(404).render('error', { message: 'Player not found' });
+      res.status(404).json({ message: 'Player not found' });
     }
   } catch (error) {
-    res.status(400).render('error', { message: 'Error updating player' });
+    res.status(400).json({ message: 'Error updating player' });
   }
 });
 
-// Delete player
-router.get('/delete-player/:id', async (req, res) => {
+// Partial update player (PATCH)
+router.patch('/edit-player/:id', async (req, res) => {
+  try {
+    const updatedPlayer = await partialUpdatePlayer(req.params.id, req.body);
+    if (updatedPlayer) {
+      res.json(updatedPlayer);
+    } else {
+      res.status(404).json({ message: 'Player not found' });
+    }
+  } catch (error) {
+    res.status(400).json({ message: 'Error updating player' });
+  }
+});
+
+// Delete player (DELETE)
+router.delete('/delete-player/:id', async (req, res) => {
   try {
     const deletedPlayer = await deletePlayer(req.params.id);
     if (deletedPlayer) {
-      res.redirect('/players');
+      res.json({ message: 'Player deleted successfully' });
     } else {
-      res.status(404).render('error', { message: 'Player not found' });
+      res.status(404).json({ message: 'Player not found' });
     }
   } catch (error) {
-    res.status(500).render('error', { message: 'Error deleting player' });
+    res.status(500).json({ message: 'Error deleting player' });
   }
 });
 
-// Players by team page
+// Players by team page (GET)
 router.get('/players/team/:team', async (req, res) => {
   try {
     const players = await getPlayersByTeam(req.params.team);
@@ -92,7 +107,7 @@ router.get('/players/team/:team', async (req, res) => {
   }
 });
 
-// Players by position page
+// Players by position page (GET)
 router.get('/players/position/:position', async (req, res) => {
   try {
     const players = await getPlayersByPosition(req.params.position);
