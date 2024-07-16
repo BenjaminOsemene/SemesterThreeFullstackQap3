@@ -10,7 +10,8 @@ const {
   deletePlayer
 } = require('../dal/dal');
 
-// GET all players
+
+//GET all players
 router.get('/', async (req, res) => {
   try {
     const players = await getAllPlayers();
@@ -54,7 +55,7 @@ router.get('/position/:position', async (req, res) => {
   }
 });
 
-// POST a new player
+// POST implemented by creating a new player
 router.post('/', async (req, res) => {
   try {
     const newPlayer = await createPlayer(req.body);
@@ -64,7 +65,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT (update) a player
+// This PUT method updates players fully
 router.put('/:id', async (req, res) => {
   try {
     const updatedPlayer = await updatePlayer(req.params.id, req.body);
@@ -78,7 +79,23 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE a player
+
+// PATCH method for partial update of a player
+router.patch('/:id', async (req, res) => {
+    try {
+      const updatedPlayer = await partialUpdatePlayer(req.params.id, req.body);
+      if (updatedPlayer) {
+        res.json(updatedPlayer);
+      } else {
+        res.status(404).json({ message: 'Player not found' });
+      }
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+
+// Deleting  a player
 router.delete('/:id', async (req, res) => {
   try {
     const deletedPlayer = await deletePlayer(req.params.id);
