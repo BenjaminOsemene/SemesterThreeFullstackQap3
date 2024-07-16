@@ -1,0 +1,159 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Route Testing</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1, h2 { color: #333; }
+        button { margin: 5px; padding: 5px 10px; }
+        input { margin: 5px 0; padding: 5px; width: 200px; }
+        #results { margin-top: 20px; border: 1px solid #ddd; padding: 10px; white-space: pre-wrap; }
+        .form-group { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>API Route Testing</h1>
+
+    <h2>GET Requests</h2>
+    <button onclick="getAllPlayers()">Get All Players</button>
+    <div class="form-group">
+        <input type="text" id="playerId" placeholder="Enter Player ID">
+        <button onclick="getPlayerById()">Get Player by ID</button>
+    </div>
+    <div class="form-group">
+        <input type="text" id="teamName" placeholder="Enter Team Name">
+        <button onclick="getPlayersByTeam()">Get Players by Team</button>
+    </div>
+    <div class="form-group">
+        <input type="text" id="position" placeholder="Enter Position">
+        <button onclick="getPlayersByPosition()">Get Players by Position</button>
+    </div>
+
+    <h2>POST Request - Create Player</h2>
+    <form id="createPlayerForm">
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="text" name="team" placeholder="Team" required>
+        <input type="text" name="position" placeholder="Position" required>
+        <input type="number" name="height" placeholder="Height (cm)" required>
+        <input type="number" name="age" placeholder="Age" required>
+        <input type="number" name="jersey_number" placeholder="Jersey Number" required>
+        <button type="button" onclick="createPlayer()">Create Player</button>
+    </form>
+
+    <h2>PUT Request - Update Player</h2>
+    <form id="updatePlayerForm">
+        <input type="text" name="id" placeholder="Player ID" required>
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+        <input type="text" name="team" placeholder="Team" required>
+        <input type="text" name="position" placeholder="Position" required>
+        <input type="number" name="height" placeholder="Height (cm)" required>
+        <input type="number" name="age" placeholder="Age" required>
+        <input type="number" name="jersey_number" placeholder="Jersey Number" required>
+        <button type="button" onclick="updatePlayer()">Update Player</button>
+    </form>
+
+    <h2>PATCH Request - Partial Update Player</h2>
+    <form id="patchPlayerForm">
+        <input type="text" name="id" placeholder="Player ID" required>
+        <input type="text" name="team" placeholder="New Team">
+        <input type="text" name="position" placeholder="New Position">
+        <input type="number" name="jersey_number" placeholder="New Jersey Number">
+        <button type="button" onclick="patchPlayer()">Patch Player</button>
+    </form>
+
+    <h2>DELETE Request</h2>
+    <div class="form-group">
+        <input type="text" id="deletePlayerId" placeholder="Enter Player ID">
+        <button onclick="deletePlayer()">Delete Player</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function makeRequest(url, method, body = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            if (body) options.body = JSON.stringify(body);
+
+            try {
+                const response = await fetch(url, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const data = await response.json();
+                    document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    const text = await response.text();
+                    throw new Error(`Received non-JSON response: ${text}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function getAllPlayers() {
+            makeRequest('/api/players', 'GET');
+        }
+
+        function getPlayerById() {
+            const id = document.getElementById('playerId').value;
+            makeRequest(`/api/players/${id}`, 'GET');
+        }
+
+        function getPlayersByTeam() {
+            const team = document.getElementById('teamName').value;
+            makeRequest(`/api/players/team/${team}`, 'GET');
+        }
+
+        function getPlayersByPosition() {
+            const position = document.getElementById('position').value;
+            makeRequest(`/api/players/position/${position}`, 'GET');
+        }
+
+        function createPlayer() {
+            const form = document.getElementById('createPlayerForm');
+            const formData = new FormData(form);
+            const playerData = Object.fromEntries(formData.entries());
+            makeRequest('/api/players', 'POST', playerData);
+        }
+
+        function updatePlayer() {
+            const form = document.getElementById('updatePlayerForm');
+            const formData = new FormData(form);
+            const playerData = Object.fromEntries(formData.entries());
+            const id = playerData.id;
+            delete playerData.id;
+            makeRequest(`/api/players/${id}`, 'PUT', playerData);
+        }
+
+        function patchPlayer() {
+            const form = document.getElementById('patchPlayerForm');
+            const formData = new FormData(form);
+            const playerData = Object.fromEntries(formData.entries());
+            const id = playerData.id;
+            delete playerData.id;
+            // Remove empty fields
+            Object.keys(playerData).forEach(key => playerData[key] === '' && delete playerData[key]);
+            makeRequest(`/api/players/${id}`, 'PATCH', playerData);
+        }
+
+        function deletePlayer() {
+            const id = document.getElementById('deletePlayerId').value;
+            makeRequest(`/api/players/${id}`, 'DELETE');
+        }
+    </script>
+</body>
+</html>

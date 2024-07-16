@@ -1,4 +1,4 @@
-//Here pg package is used to connect to postgreSQL
+// Here pg package is used to connect to postgreSQL
 const { Pool } = require('pg');
 
 // Create pool instance to manage database connections
@@ -10,10 +10,11 @@ const pool = new Pool({
   port: 5432,
 });
 
-// Functions to implement CRUD operations such as GET,POST,PUT/PATCH,DELETE
-//Using async/await for handling promises
-//Errors logged to the console and thrown
-//Returns result from the database which are promises
+// Functions to implement CRUD operations such as GET, POST, PUT/PATCH, DELETE
+// Using async/await for handling promises
+// Errors logged to the console and thrown
+// Returns result from the database which are promises
+
 async function getAllPlayers() {
   try {
     const result = await pool.query('SELECT * FROM basketball_players');
@@ -82,6 +83,27 @@ async function updatePlayer(id, player) {
   }
 }
 
+async function partialUpdatePlayer(id, partialData) {
+  try {
+    // Generate the SET clause based on the provided partial info
+    const setClause = Object.keys(partialData)
+      .map((key, index) => `${key} = $${index + 1}`)
+      .join(', ');
+
+    // Create the query 
+    const query = `UPDATE basketball_players SET ${setClause} WHERE id = $${Object.keys(partialData).length + 1} RETURNING *`;
+
+    // Create the values array
+    const values = [...Object.values(partialData), id];
+
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error in partialUpdatePlayer:', error);
+    throw error;
+  }
+}
+
 async function deletePlayer(id) {
   try {
     const result = await pool.query('DELETE FROM basketball_players WHERE id = $1 RETURNING *', [id]);
@@ -92,7 +114,7 @@ async function deletePlayer(id) {
   }
 }
 
-//Exporting all functions for use 
+// Exporting all functions for use 
 module.exports = {
   getAllPlayers,
   getPlayerById,
@@ -100,5 +122,9 @@ module.exports = {
   getPlayersByPosition,
   createPlayer,
   updatePlayer,
+  partialUpdatePlayer,
   deletePlayer,
 };
+
+
+
